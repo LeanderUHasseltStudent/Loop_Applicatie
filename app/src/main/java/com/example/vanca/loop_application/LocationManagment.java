@@ -35,12 +35,12 @@ public class LocationManagment {
         this.context = context;
     }
 
-    public void getLocation() {
+    public void setUp() {
         locationManager = (LocationManager) context.getSystemService(LOCATION_SERVICE);
         locationListener = new LocationListener() {
             @Override
-            public void onLocationChanged(Location newLocation) {
-                location = newLocation;
+            public void onLocationChanged(Location location) {
+                loopGegevens.add(location);
             }
 
             @Override

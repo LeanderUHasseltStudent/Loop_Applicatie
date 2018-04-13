@@ -20,7 +20,8 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name=".ChildActivity_LoopData"></activity>
+        <activity android:name=".ChildActivity_LoopData" />
+        <activity android:name=".SettingsActivity_LoopData"></activity>
     </application>
 
 </manifest>
