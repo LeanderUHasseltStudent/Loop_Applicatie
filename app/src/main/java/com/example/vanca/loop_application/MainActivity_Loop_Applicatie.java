@@ -187,7 +187,7 @@ public class MainActivity_Loop_Applicatie extends AppCompatActivity implements M
         }
         @Override
         protected void onPostExecute(Double respons) {
-            Log.d("lol", respons + "     //////////////////////////////////////////////////////////////////////////////////////////");
+
         }
     }
 }
