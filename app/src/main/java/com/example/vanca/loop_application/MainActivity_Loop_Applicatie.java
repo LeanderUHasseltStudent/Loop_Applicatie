@@ -36,7 +36,6 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
-import static android.support.v4.content.ContextCompat.startActivity;
 
 public class MainActivity_Loop_Applicatie extends AppCompatActivity implements MyRecyclerViewAdapter.ItemClickListener {
 
@@ -68,8 +67,14 @@ public class MainActivity_Loop_Applicatie extends AppCompatActivity implements M
         recyclerView.setAdapter(adapter);
 
 
-        Button button = (Button) findViewById(R.id.myButton);
-        button.setOnClickListener (new View.OnClickListener() {
+        Button startButton = (Button) findViewById(R.id.startButton);
+        startButton.setOnClickListener (new View.OnClickListener() {
+            public void onClick(View v) {
+                startSession();
+            }
+        });
+        Button stopButton = (Button) findViewById(R.id.stopButton);
+        startButton.setOnClickListener (new View.OnClickListener() {
             public void onClick(View v) {
                 addData();
                 adapter.swapCursor(getAllSesions());
@@ -189,5 +194,16 @@ public class MainActivity_Loop_Applicatie extends AppCompatActivity implements M
         protected void onPostExecute(Double respons) {
 
         }
+    }
+
+    public void startSession(){
+        locationManagment = new LocationManagment(this);
+        locationManagment.setUp();
+        locationManagment.startTracking();
+    }
+
+    public void stopSession(){
+        ArrayList<Location> locations = locationManagment.getLocation();
+
     }
 }

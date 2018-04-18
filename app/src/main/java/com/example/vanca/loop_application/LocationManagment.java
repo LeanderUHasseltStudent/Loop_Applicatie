@@ -79,4 +79,8 @@ public class LocationManagment {
         locationListener = null;
     }
 
+    public ArrayList<Location> getLocation(){
+        return loopGegevens;
+    }
+
 }
