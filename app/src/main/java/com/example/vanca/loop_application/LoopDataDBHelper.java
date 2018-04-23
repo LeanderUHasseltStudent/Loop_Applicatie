@@ -20,7 +20,7 @@ public class LoopDataDBHelper extends SQLiteOpenHelper {
     @Override
     public void onCreate(SQLiteDatabase sqLiteDatabase) {
 
-        // Create a table to hold waitlist data
+        // Create a table to hold waitlist dataé
         final String SQL_CREATE_WAITLIST_TABLE = "CREATE TABLE " + StorageContract.StorageEntry.Data_Name + " (" +
                 StorageContract.StorageEntry._ID + " INTEGER PRIMARY KEY AUTOINCREMENT," +
                 StorageContract.StorageEntry.COLUMN_Datum + " TEXT NOT NULL, " +

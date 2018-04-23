@@ -15,6 +15,7 @@ import java.io.BufferedInputStream;
         import java.net.MalformedURLException;
         import java.net.ProtocolException;
         import java.net.URL;
+import java.util.ArrayList;
 
 public class HttpHandler{
 
@@ -23,8 +24,8 @@ public class HttpHandler{
     public HttpHandler() {
     }
 
-    public Double makeServiceCall(String reqUrl) {
-        Double response = null;
+    public ArrayList<Double> makeServiceCall(String reqUrl) {
+        ArrayList<Double> response = new ArrayList<Double>();
         try {
             URL url = new URL(reqUrl);
             HttpURLConnection conn = (HttpURLConnection) url.openConnection();
@@ -47,9 +48,9 @@ public class HttpHandler{
                 String[] birthdays = new String[data.length()];
                 for(int i = 0 ; i < data.length() ; i++) {
                     birthdays[i] = data.getJSONObject(i).getString("elevation");
+                    double value = Double.parseDouble(birthdays[0]);
+                    response.add(value);
                 }
-                double value = Double.parseDouble(birthdays[0]);
-                response = value;
             }
         } catch (MalformedURLException e) {
             Log.e(TAG, "MalformedURLException: " + e.getMessage());

@@ -10,33 +10,33 @@ import android.widget.TextView;
 import java.io.Serializable;
 
 public class ChildActivity_LoopData extends AppCompatActivity {
-
-    private Button startButton;
-    private Button stopButton;
-    private LocationManagment locationManagment;
-    private TextView textView;
+    private TextView textViewName;
+    private TextView textViewDistance;
+    private TextView textViewTime;
+    private TextView textViewVelocity;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_child__loop_data);
-        textView = (TextView)findViewById(R.id.locaties);
 
-        startButton = (Button) findViewById(R.id.startButton);
-        startButton.setOnClickListener (new View.OnClickListener() {
-            public void onClick(View v) {
-                locationManagment = new LocationManagment(getApplicationContext());
-                locationManagment.setUp();
-                locationManagment.startTracking();
-            }
-        });
+        textViewName = (TextView)findViewById(R.id.name);
+        textViewDistance = (TextView)findViewById(R.id.distance);
+        textViewTime = (TextView)findViewById(R.id.time);
+        textViewVelocity = (TextView)findViewById(R.id.velocity);
 
-        stopButton = (Button) findViewById(R.id.stopButton);
-        stopButton.setOnClickListener (new View.OnClickListener() {
-            public void onClick(View v) {
-                locationManagment.stopTracking();
-                textView.setText("lol");
-            }
-        });
+        Intent intent = getIntent();
+        if(intent.hasExtra("Intent.EXTRA_TEXT1")){
+            String text = intent.getStringExtra("Intent.EXTRA_TEXT1");
+            textViewName.setText(text);
+        }
+        if(intent.hasExtra("Intent.EXTRA_TEXT2")){
+            String text = intent.getStringExtra("Intent.EXTRA_TEXT2");
+            textViewDistance.setText(text);
+        }
+        if(intent.hasExtra("Intent.EXTRA_TEXT3")){
+            String text = intent.getStringExtra("Intent.EXTRA_TEXT3");
+            textViewTime.setText(text);
+        }
     }
 }

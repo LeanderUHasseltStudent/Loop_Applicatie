@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+<string-array name="keuzes">
+    <item>"meter"</item>
+    <item>"kilometer"</item>
+    <item>"mile"</item>
+</string-array>
+
+<string-array name="keuzesWaardes">
+    <item>"meter"</item>
+    <item>"kilometer"</item>
+    <item>"mile"</item>
+</string-array>
+    </resources>
