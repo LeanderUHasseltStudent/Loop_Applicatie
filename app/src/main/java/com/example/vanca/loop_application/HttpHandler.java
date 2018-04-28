@@ -42,7 +42,7 @@ public class HttpHandler{
             }
             in.close();
             JSONObject jsonResult= new JSONObject(responseStrBuilder.toString());
-
+            Log.d("lol", "///////////////////////////////////////////////////////////////////"+jsonResult);
             JSONArray data = jsonResult.getJSONArray("results");
             if(data != null) {
                 String[] birthdays = new String[data.length()];

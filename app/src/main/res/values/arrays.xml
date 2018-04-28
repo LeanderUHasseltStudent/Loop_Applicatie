@@ -1,14 +1,29 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-<string-array name="keuzes">
-    <item>"meter"</item>
-    <item>"kilometer"</item>
-    <item>"mile"</item>
+
+<string-array name="keuzesAfstandEenheid">
+    <item>"Meter"</item>
+    <item>"Kilometer"</item>
+    <item>"Mile"</item>
 </string-array>
 
-<string-array name="keuzesWaardes">
-    <item>"meter"</item>
-    <item>"kilometer"</item>
-    <item>"mile"</item>
+<string-array name="keuzesWaardesAfstandEenheid">
+    <item>"Meter"</item>
+    <item>"Kilometer"</item>
+    <item>"Mile"</item>
 </string-array>
-    </resources>
+
+<string-array name="keuzesNauwkeurigheid">
+    <item>"Low"</item>
+    <item>"Normal"</item>
+    <item>"High"</item>
+</string-array>
+
+<string-array name="keuzesWaardesNauwkeurigheid">
+    <item>"Low"</item>
+    <item>"Normal"</item>
+    <item>"High"</item>
+</string-array>
+
+</resources>
+

@@ -2,8 +2,15 @@
 <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
     <ListPreference
         android:key="PREF_LIST"
-        android:title="ListPreference title"
-        android:summary="ListPreference summary"
-        android:entries="@array/keuzes"
-        android:entryValues="@array/keuzesWaardes" />
+        android:title="Unit distance"
+        android:summary="%s"
+        android:entries="@array/keuzesAfstandEenheid"
+        android:entryValues="@array/keuzesWaardesAfstandEenheid" />
+
+    <ListPreference
+        android:key="PREF_LIST2"
+        android:title="Precision (Better uses more battery power)"
+        android:summary="%s"
+        android:entries="@array/keuzesNauwkeurigheid"
+        android:entryValues="@array/keuzesWaardesNauwkeurigheid" />
 </PreferenceScreen>

@@ -14,21 +14,24 @@ public class ChildActivity_LoopData extends AppCompatActivity {
     private TextView textViewDistance;
     private TextView textViewTime;
     private TextView textViewVelocity;
+    private TextView textViewMaxAltitude;
+    private TextView textViewMinAltitude;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_child__loop_data);
 
-        textViewName = (TextView)findViewById(R.id.name);
         textViewDistance = (TextView)findViewById(R.id.distance);
         textViewTime = (TextView)findViewById(R.id.time);
         textViewVelocity = (TextView)findViewById(R.id.velocity);
+        textViewMaxAltitude = (TextView)findViewById(R.id.maxAltitude);
+        textViewMinAltitude = (TextView)findViewById(R.id.minAltitude);
 
         Intent intent = getIntent();
         if(intent.hasExtra("Intent.EXTRA_TEXT1")){
             String text = intent.getStringExtra("Intent.EXTRA_TEXT1");
-            textViewName.setText(text);
+            setTitle(text);
         }
         if(intent.hasExtra("Intent.EXTRA_TEXT2")){
             String text = intent.getStringExtra("Intent.EXTRA_TEXT2");
@@ -37,6 +40,18 @@ public class ChildActivity_LoopData extends AppCompatActivity {
         if(intent.hasExtra("Intent.EXTRA_TEXT3")){
             String text = intent.getStringExtra("Intent.EXTRA_TEXT3");
             textViewTime.setText(text);
+        }
+        if(intent.hasExtra("Intent.EXTRA_TEXT4")){
+            String text = intent.getStringExtra("Intent.EXTRA_TEXT4");
+            textViewVelocity.setText(text);
+        }
+        if(intent.hasExtra("Intent.EXTRA_TEXT5")){
+            String text = intent.getStringExtra("Intent.EXTRA_TEXT5");
+            textViewMaxAltitude.setText(text);
+        }
+        if(intent.hasExtra("Intent.EXTRA_TEXT6")){
+            String text = intent.getStringExtra("Intent.EXTRA_TEXT6");
+            textViewMinAltitude.setText(text);
         }
     }
 }

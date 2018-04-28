@@ -51,7 +51,7 @@ public class MyRecyclerViewAdapter extends RecyclerView.Adapter<MyRecyclerViewAd
             return; // bail if returned null
 
         // Update the view holder with the information needed to display
-        String name = mCursor.getString(mCursor.getColumnIndex(StorageContract.StorageEntry.COLUMN_Datum));
+        String name = "Session " + mCursor.getString(mCursor.getColumnIndex(StorageContract.StorageEntry.COLUMN_Datum));
         // COMPLETED (6) Retrieve the id from the cursor and
         long id = mCursor.getLong(mCursor.getColumnIndex(StorageContract.StorageEntry._ID));
 

@@ -10,6 +10,9 @@ public class StorageContract {
         public static final String COLUMN_Datum = "datum";
         public static final String COLUMN_Distance = "partySize";
         public static final String COLUMN_TIME= "timestamp";
+        public static final String COLUMN_VELOCITY= "velocity";
+        public static final String COLUMN_MAXALTITUDE= "maxAltitude";
+        public static final String COLUMN_MINALTITUDE= "minAltitude";
     }
 
 }

@@ -1,27 +1,25 @@
 package com.example.vanca.loop_application;
 
 import android.Manifest;
+import android.content.BroadcastReceiver;
 import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
-import android.location.LocationListener;
-import android.location.LocationManager;
-import android.media.audiofx.Equalizer;
+import android.graphics.Color;
 import android.os.AsyncTask;
 import android.os.Build;
-import android.provider.Settings;
 import android.support.annotation.NonNull;
-import android.support.v4.app.ActivityCompat;
+import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.preference.PreferenceManager;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.support.v7.widget.Toolbar;
 import android.support.v7.widget.helper.ItemTouchHelper;
 import android.util.Log;
 import android.view.Menu;
@@ -29,35 +27,27 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
-import android.widget.TextView;
 import android.location.Location;
-import android.widget.Toast;
-
-import org.json.JSONArray;
-import org.json.JSONException;
-
-import java.io.Serializable;
-import java.net.URL;
 import java.text.DateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Date;
-import java.util.List;
-
+import java.util.concurrent.TimeUnit;
 
 public class MainActivity_Loop_Applicatie extends AppCompatActivity implements MyRecyclerViewAdapter.ItemClickListener, SharedPreferences.OnSharedPreferenceChangeListener {
 
     private Cursor cursor;
-    private TextView loopDataTextView;
-    private Button button;
     private MyRecyclerViewAdapter adapter;
     private SQLiteDatabase mDb;
     private ArrayList<Location> locations = new ArrayList<Location>();
-    protected LocationManager locationManager;
-    protected LocationListener locationListener;
+    private MyBroadCastReceiver myBroadCastReceiver = new MyBroadCastReceiver();
+    private Button btn_start, btn_stop;
+    public static final String BROADCAST_ACTION = "com.example.vanca.loop_application";
+    private Date date1;
+    private Date date2;
 
     public MainActivity_Loop_Applicatie() {
     }
-
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -67,7 +57,6 @@ public class MainActivity_Loop_Applicatie extends AppCompatActivity implements M
         LoopDataDBHelper dbHelper = new LoopDataDBHelper(this);
         mDb = dbHelper.getWritableDatabase();
         cursor = getAllSesions();
-
         setupSharedPreferences();
 
         RecyclerView recyclerView = findViewById(R.id.recycler);
@@ -76,44 +65,28 @@ public class MainActivity_Loop_Applicatie extends AppCompatActivity implements M
         adapter.setClickListener(this);
         recyclerView.setAdapter(adapter);
 
+        btn_start = (Button) findViewById(R.id.startButton);
+        btn_stop = (Button) findViewById(R.id.stopButton);
+        btn_start.setBackgroundColor(Color.GREEN);
+        btn_stop.setBackgroundColor(Color.GRAY);
+        btn_stop.setEnabled(false);
 
-        Button startButton = (Button) findViewById(R.id.startButton);
-        startButton.setOnClickListener (new View.OnClickListener() {
-            public void onClick(View v) {
-                startSession();
-            }
-        });
-        Button stopButton = (Button) findViewById(R.id.stopButton);
-        stopButton.setOnClickListener (new View.OnClickListener() {
-            public void onClick(View v) {
-                stopSession();
-            }
-        });
+        if(!runtime_permissions())
+            enable_buttons();
 
         new ItemTouchHelper(new ItemTouchHelper.SimpleCallback(0, ItemTouchHelper.LEFT | ItemTouchHelper.RIGHT) {
 
-            // COMPLETED (4) Override onMove and simply return false inside
             @Override
             public boolean onMove(RecyclerView recyclerView, RecyclerView.ViewHolder viewHolder, RecyclerView.ViewHolder target) {
-                //do nothing, we only care about swiping
                 return false;
             }
 
-            // COMPLETED (5) Override onSwiped
             @Override
             public void onSwiped(RecyclerView.ViewHolder viewHolder, int swipeDir) {
-                // COMPLETED (8) Inside, get the viewHolder's itemView's tag and store in a long variable id
-                //get the id of the item being swiped
                 long id = (long) viewHolder.itemView.getTag();
-                // COMPLETED (9) call removeGuest and pass through that id
-                //remove from DB
                 removeData(id);
-                // COMPLETED (10) call swapCursor on mAdapter passing in getAllGuests() as the argument
-                //update the list
                 adapter.swapCursor(getAllSesions());
             }
-
-            //COMPLETED (11) attach the ItemTouchHelper to the waitlistRecyclerView
         }).attachToRecyclerView(recyclerView);
     }
 
@@ -153,16 +126,18 @@ public class MainActivity_Loop_Applicatie extends AppCompatActivity implements M
         );
     }
 
-    private long addData(double distance){
+    private long addData(double distance, double maxAltitude, double minAltitude, double velocity, String time){
         ContentValues cv = new ContentValues();
         cv.put(StorageContract.StorageEntry.COLUMN_Datum, getDatum());
         cv.put(StorageContract.StorageEntry.COLUMN_Distance, distance);
-        cv.put(StorageContract.StorageEntry.COLUMN_TIME, 1);
+        cv.put(StorageContract.StorageEntry.COLUMN_TIME, time);
+        cv.put(StorageContract.StorageEntry.COLUMN_MAXALTITUDE, maxAltitude);
+        cv.put(StorageContract.StorageEntry.COLUMN_MINALTITUDE, minAltitude);
+        cv.put(StorageContract.StorageEntry.COLUMN_VELOCITY, velocity);
         return mDb.insert(StorageContract.StorageEntry.Data_Name, null, cv);
     }
 
     private boolean removeData(long id) {
-        // COMPLETED (2) Inside, call mDb.delete to pass in the TABLE_NAME and the condition that WaitlistEntry._ID equals id
         return mDb.delete(StorageContract.StorageEntry.Data_Name, StorageContract.StorageEntry._ID + "=" + id, null) > 0;
     }
 
@@ -174,6 +149,9 @@ public class MainActivity_Loop_Applicatie extends AppCompatActivity implements M
             String name = mCursor.getString(mCursor.getColumnIndex(StorageContract.StorageEntry.COLUMN_Datum));
             String distance = mCursor.getString(mCursor.getColumnIndex(StorageContract.StorageEntry.COLUMN_Distance));
             String time = mCursor.getString(mCursor.getColumnIndex(StorageContract.StorageEntry.COLUMN_TIME));
+            String maxAltitude = mCursor.getString(mCursor.getColumnIndex(StorageContract.StorageEntry.COLUMN_MAXALTITUDE));
+            String minAltitude = mCursor.getString(mCursor.getColumnIndex(StorageContract.StorageEntry.COLUMN_MINALTITUDE));
+            String velocity = mCursor.getString(mCursor.getColumnIndex(StorageContract.StorageEntry.COLUMN_VELOCITY));
 
             SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
             String sortBy = prefs.getString("PREF_LIST", "meter");
@@ -182,29 +160,34 @@ public class MainActivity_Loop_Applicatie extends AppCompatActivity implements M
                 double distanceInKm = (d/1000);
                 distance = Double.toString(distanceInKm);
             }
+            if (sortBy == "mile"){
+                double d = Double.parseDouble(distance);
+                double distanceInMile = (d*0.000621371192);
+                distance = Double.toString(distanceInMile);
+            }
 
             Intent intent = new Intent(this, ChildActivity_LoopData.class);
             intent.putExtra("Intent.EXTRA_TEXT1", name);
             intent.putExtra("Intent.EXTRA_TEXT2", distance);
             intent.putExtra("Intent.EXTRA_TEXT3", time);
+            intent.putExtra("Intent.EXTRA_TEXT4", velocity);
+            intent.putExtra("Intent.EXTRA_TEXT5", maxAltitude);
+            intent.putExtra("Intent.EXTRA_TEXT6", minAltitude);
             startActivity(intent);
         }
     }
 
     public String getDatum(){
         String currentDateTimeString = DateFormat.getDateTimeInstance().format(new Date());
-        return ("Session   " + currentDateTimeString);
+        return (currentDateTimeString);
     }
 
     @Override
     public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
-
     }
 
 
     public class FetchAltitude extends AsyncTask<String, Void, ArrayList<Double>> {
-
-        // COMPLETED (6) Override the doInBackground method to perform your network requests
         @Override
         protected ArrayList<Double> doInBackground(String... params) {
 
@@ -219,21 +202,29 @@ public class MainActivity_Loop_Applicatie extends AppCompatActivity implements M
         }
         @Override
         protected void onPostExecute(ArrayList<Double> respons) {
-            DataHandler dataHandler = new DataHandler(locations, respons);
+            DataHandler dataHandler = new DataHandler(locations, respons, date2.getTime() - date1.getTime());
+            dataHandler.checkAltitude();
+
             double distance = dataHandler.getDistance();
-            addData(distance);
+            double maxAltitude = dataHandler.getMaxAltitude();
+            double minAltitude = dataHandler.getMinAltitude();
+            double velocity = dataHandler.getVelocity();
+            String time = dataHandler.getTime();
+
+            addData(distance, maxAltitude, minAltitude, velocity, time);
+
             adapter.swapCursor(getAllSesions());
             locations.clear();
+
+            btn_start.setBackgroundColor(Color.GREEN);
+            btn_stop.setBackgroundColor(Color.GRAY);
+            btn_start.setEnabled(true);
+            btn_stop.setEnabled(false);
         }
     }
 
-    public void startSession(){
-        setUp();
-        startTracking();
-    }
-
     public void stopSession(){
-        stopTracking();
+        date2 = Calendar.getInstance().getTime();
         int teller = 0;
         String http = "https://maps.googleapis.com/maps/api/elevation/json?locations=";
         for (Location location : locations){
@@ -251,49 +242,91 @@ public class MainActivity_Loop_Applicatie extends AppCompatActivity implements M
         new FetchAltitude().execute(http);
     }
 
-    public void setUp() {
-        locationManager = (LocationManager) getSystemService(LOCATION_SERVICE);
-        locationListener = new LocationListener() {
-            @Override
-            public void onLocationChanged(Location location) {
-                locations.add(location);
-                Log.d("lol", "///////////////////////////////////////////////////////////////////////////////: ");
-            }
-
-            @Override
-            public void onStatusChanged(String s, int i, Bundle bundle) {
-
-            }
-
-            @Override
-            public void onProviderEnabled(String s) {
-
-            }
-
-            @Override
-            public void onProviderDisabled(String s) {
-                Intent intent = new Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS);
-                startActivity(intent);
-            }
-        };
+    private void registerMyReceiver() {
+        try
+        {
+            IntentFilter intentFilter = new IntentFilter();
+            intentFilter.addAction(BROADCAST_ACTION);
+            registerReceiver(myBroadCastReceiver, intentFilter);
+        }
+        catch (Exception ex)
+        {
+            ex.printStackTrace();
+        }
     }
 
-    public void startTracking() {
-        if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-                requestPermissions(new String[]{
-                        Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION,
-                        Manifest.permission.INTERNET
-                }, 10);
-                return;
+    class MyBroadCastReceiver extends BroadcastReceiver
+    {
+
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            locations.add((Location) intent.getExtras().get("data"));
+        }
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+
+        // make sure to unregister your receiver after finishing of this activity
+        unregisterReceiver(myBroadCastReceiver);
+    }
+
+    private boolean runtime_permissions() {
+        if(Build.VERSION.SDK_INT >= 23 && ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED){
+
+            requestPermissions(new String[]{Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION},100);
+
+            return true;
+        }
+        return false;
+    }
+
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        if(requestCode == 100){
+            if( grantResults[0] == PackageManager.PERMISSION_GRANTED && grantResults[1] == PackageManager.PERMISSION_GRANTED){
+                enable_buttons();
+            }else {
+                runtime_permissions();
             }
         }
-        locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 1000, 0, locationListener);
     }
 
-    public void stopTracking(){
-        locationManager.removeUpdates(locationListener);
-        locationListener = null;
+    private void startSession(){
+        registerMyReceiver();
+        date1 = Calendar.getInstance().getTime();
+        btn_start.setEnabled(false);
+        btn_stop.setEnabled(true);
+        btn_start.setBackgroundColor(Color.GRAY);
+        btn_stop.setBackgroundColor(Color.RED);
+    }
+
+    private void enable_buttons() {
+        btn_start.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                startSession();
+                SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
+                String sortBy = prefs.getString("PREF_LIST", "meter");
+                Intent i =new Intent(getApplicationContext(),LocationService.class);
+                i.putExtra("Nouwkeurigheid", sortBy);
+                i.setAction(Constants.ACTION.STARTFOREGROUND_ACTION);
+                startService(i);
+            }
+        });
+
+        btn_stop.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent i = new Intent(getApplicationContext(),LocationService.class);
+                stopService(i);
+                stopSession();
+            }
+        });
+
     }
 
 }
