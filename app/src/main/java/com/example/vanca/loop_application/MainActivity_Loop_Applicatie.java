@@ -45,6 +45,7 @@ public class MainActivity_Loop_Applicatie extends AppCompatActivity implements M
     public static final String BROADCAST_ACTION = "com.example.vanca.loop_application";
     private Date date1;
     private Date date2;
+    SharedPreferences sharedPreferences;
 
     public MainActivity_Loop_Applicatie() {
     }
@@ -71,6 +72,7 @@ public class MainActivity_Loop_Applicatie extends AppCompatActivity implements M
         btn_stop.setBackgroundColor(Color.GRAY);
         btn_stop.setEnabled(false);
 
+
         if(!runtime_permissions())
             enable_buttons();
 
@@ -90,9 +92,14 @@ public class MainActivity_Loop_Applicatie extends AppCompatActivity implements M
         }).attachToRecyclerView(recyclerView);
     }
 
+
     private void setupSharedPreferences() {
-        SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
+        sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
         sharedPreferences.registerOnSharedPreferenceChangeListener(this);
+    }
+
+    @Override
+    public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
     }
 
     @Override
@@ -153,19 +160,6 @@ public class MainActivity_Loop_Applicatie extends AppCompatActivity implements M
             String minAltitude = mCursor.getString(mCursor.getColumnIndex(StorageContract.StorageEntry.COLUMN_MINALTITUDE));
             String velocity = mCursor.getString(mCursor.getColumnIndex(StorageContract.StorageEntry.COLUMN_VELOCITY));
 
-            SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
-            String sortBy = prefs.getString("PREF_LIST", "meter");
-            if (sortBy == "kilometer"){
-                double d = Double.parseDouble(distance);
-                double distanceInKm = (d/1000);
-                distance = Double.toString(distanceInKm);
-            }
-            if (sortBy == "mile"){
-                double d = Double.parseDouble(distance);
-                double distanceInMile = (d*0.000621371192);
-                distance = Double.toString(distanceInMile);
-            }
-
             Intent intent = new Intent(this, ChildActivity_LoopData.class);
             intent.putExtra("Intent.EXTRA_TEXT1", name);
             intent.putExtra("Intent.EXTRA_TEXT2", distance);
@@ -180,10 +174,6 @@ public class MainActivity_Loop_Applicatie extends AppCompatActivity implements M
     public String getDatum(){
         String currentDateTimeString = DateFormat.getDateTimeInstance().format(new Date());
         return (currentDateTimeString);
-    }
-
-    @Override
-    public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
     }
 
 
@@ -225,6 +215,7 @@ public class MainActivity_Loop_Applicatie extends AppCompatActivity implements M
 
     public void stopSession(){
         date2 = Calendar.getInstance().getTime();
+        unregisterReceiver(myBroadCastReceiver);
         int teller = 0;
         String http = "https://maps.googleapis.com/maps/api/elevation/json?locations=";
         for (Location location : locations){
@@ -267,9 +258,6 @@ public class MainActivity_Loop_Applicatie extends AppCompatActivity implements M
     @Override
     protected void onDestroy() {
         super.onDestroy();
-
-        // make sure to unregister your receiver after finishing of this activity
-        unregisterReceiver(myBroadCastReceiver);
     }
 
     private boolean runtime_permissions() {
@@ -309,10 +297,7 @@ public class MainActivity_Loop_Applicatie extends AppCompatActivity implements M
             @Override
             public void onClick(View view) {
                 startSession();
-                SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
-                String sortBy = prefs.getString("PREF_LIST", "meter");
                 Intent i =new Intent(getApplicationContext(),LocationService.class);
-                i.putExtra("Nouwkeurigheid", sortBy);
                 i.setAction(Constants.ACTION.STARTFOREGROUND_ACTION);
                 startService(i);
             }

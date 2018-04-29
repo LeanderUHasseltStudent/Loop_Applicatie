@@ -7,9 +7,20 @@
     android:padding="10dp">
 
     <TextView
-        android:id="@+id/locaties"
+        android:id="@+id/nameSession"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:textSize="20sp"/>
+        android:layout_gravity="center_vertical|end"
+        android:fontFamily="arial"
+        android:textSize="22sp"/>
+    <TextView
+        android:id="@+id/distanceSession"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_vertical|start"
+        android:fontFamily="arial"
+        android:textColor="#b1b0b0"
+
+        android:textSize="17sp" />
 
 </LinearLayout>

@@ -11,11 +11,13 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 
 import java.text.DateFormat;
+import java.text.DecimalFormat;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 
 import static android.support.v4.content.ContextCompat.startActivity;
+import static java.lang.Double.parseDouble;
 
 public class MyRecyclerViewAdapter extends RecyclerView.Adapter<MyRecyclerViewAdapter.GuestViewHolder> {
 
@@ -51,15 +53,22 @@ public class MyRecyclerViewAdapter extends RecyclerView.Adapter<MyRecyclerViewAd
             return; // bail if returned null
 
         // Update the view holder with the information needed to display
-        String name = "Session " + mCursor.getString(mCursor.getColumnIndex(StorageContract.StorageEntry.COLUMN_Datum));
+        String name = mCursor.getString(mCursor.getColumnIndex(StorageContract.StorageEntry.COLUMN_Datum));
+        String distance = mCursor.getString(mCursor.getColumnIndex(StorageContract.StorageEntry.COLUMN_Distance));
         // COMPLETED (6) Retrieve the id from the cursor and
         long id = mCursor.getLong(mCursor.getColumnIndex(StorageContract.StorageEntry._ID));
 
         // Display the guest name
-        holder.nameTextView.setText(name);
+        holder.nameTextView.setText(name + "          ");
 
         // COMPLETED (7) Set the tag of the itemview in the holder to the id
         holder.itemView.setTag(id);
+        double d = Double.parseDouble(distance)/1000;
+
+        DecimalFormat twoDForm = new DecimalFormat("#.#");
+        Double.valueOf(twoDForm.format(d));
+        String s = Double.toString(d);
+        holder.itemNumberTextView.setText(s + " km");
     }
 
 
@@ -98,6 +107,7 @@ public class MyRecyclerViewAdapter extends RecyclerView.Adapter<MyRecyclerViewAd
 
         // Will display the guest name
         TextView nameTextView;
+        TextView itemNumberTextView;
 
         /**
          * Constructor for our ViewHolder. Within this constructor, we get a reference to our
@@ -109,7 +119,9 @@ public class MyRecyclerViewAdapter extends RecyclerView.Adapter<MyRecyclerViewAd
         public GuestViewHolder(View itemView) {
             super(itemView);
             itemView.setOnClickListener(this);
-            nameTextView = (TextView) itemView.findViewById(R.id.locaties);
+            nameTextView = (TextView) itemView.findViewById(R.id.nameSession);
+            itemNumberTextView = (TextView) itemView.findViewById(R.id.distanceSession);
+
         }
 
         @Override

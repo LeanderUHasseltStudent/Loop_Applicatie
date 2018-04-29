@@ -6,6 +6,7 @@ import android.app.Service;
 import android.bluetooth.BluetoothClass;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
@@ -14,6 +15,7 @@ import android.os.IBinder;
 import android.provider.Settings;
 import android.support.annotation.Nullable;
 import android.support.v4.app.NotificationCompat;
+import android.support.v7.preference.PreferenceManager;
 import android.util.Log;
 
 import java.util.ArrayList;
@@ -43,12 +45,7 @@ public class LocationService extends Service {
     @Override
     public int onStartCommand(Intent intent, int flags, int startid) {
 
-        if(intent.hasExtra("Intent.EXTRA_TEXT1")){
-            String nauwkeurigheid = intent.getStringExtra("nauwkeurigheid");;
-        }
-
         if (intent.getAction().equals(Constants.ACTION.STARTFOREGROUND_ACTION)) {
-
             Notification notification = new NotificationCompat.Builder(this)
                     .setContentTitle("nkDroid Music Player")
                     .setTicker("nkDroid Music Player")
@@ -88,10 +85,14 @@ public class LocationService extends Service {
         //noinspection MissingPermission
         locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER,1000,0,listener);
 
-        if (nauwkeurigheid == "LOW"){
+        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
+        nauwkeurigheid = prefs.getString("PREF_LIST2", "Normal");
+        Log.d("lol", "///////////////////////////////////////////////////////////provider disabled: " + nauwkeurigheid);
+
+        if (nauwkeurigheid.equals("Low")){
             updateSnelheid = 30000;
         }
-        else if (nauwkeurigheid == "High"){
+        else if (nauwkeurigheid.equals("High")){
             updateSnelheid = 10000;
         }
         else{
