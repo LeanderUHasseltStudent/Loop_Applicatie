@@ -23,7 +23,7 @@ import java.util.ArrayList;
 import static com.example.vanca.loop_application.MainActivity_Loop_Applicatie.BROADCAST_ACTION;
 
 /**
- * Created by vanca on 4/23/2018.
+ * Created by Van Cappellen Leander
  */
 
 public class LocationService extends Service {
@@ -63,17 +63,17 @@ public class LocationService extends Service {
 
             @Override
             public void onStatusChanged(String s, int i, Bundle bundle) {
-                Log.d("error", "///////////////////////////////////////////////////////////onStatusChanged: ");
+                Log.d("onStatusChanged", "Status has changed ");
             }
 
             @Override
             public void onProviderEnabled(String s) {
-                Log.d("error", "///////////////////////////////////////////////////////////provider enabled: ");
+                Log.d("onProviderEnabled", "provider is enabled ");
             }
 
             @Override
             public void onProviderDisabled(String s) {
-                Log.d("error", "///////////////////////////////////////////////////////////provider disabled: ");
+                Log.d("onProviderDisabled", "provider is disabled ");
                 Intent i = new Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS);
                 i.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
                 startActivity(i);
@@ -87,7 +87,6 @@ public class LocationService extends Service {
 
         SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
         nauwkeurigheid = prefs.getString("PREF_LIST2", "Normal");
-        Log.d("lol", "///////////////////////////////////////////////////////////provider disabled: " + nauwkeurigheid);
 
         if (nauwkeurigheid.equals("Low")){
             updateSnelheid = 30000;

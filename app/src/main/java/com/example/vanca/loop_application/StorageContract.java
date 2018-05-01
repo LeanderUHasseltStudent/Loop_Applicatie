@@ -2,6 +2,9 @@ package com.example.vanca.loop_application;
 
 import android.provider.BaseColumns;
 
+/**
+ * Created by Van Cappellen Leander
+ */
 
 public class StorageContract {
 

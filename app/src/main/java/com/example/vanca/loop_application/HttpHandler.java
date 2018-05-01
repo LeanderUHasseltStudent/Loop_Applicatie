@@ -17,6 +17,10 @@ import java.io.BufferedInputStream;
         import java.net.URL;
 import java.util.ArrayList;
 
+/**
+ * Created by Van Cappellen Leander
+ */
+
 public class HttpHandler{
 
     private static final String TAG = HttpHandler.class.getSimpleName();
@@ -31,7 +35,6 @@ public class HttpHandler{
             HttpURLConnection conn = (HttpURLConnection) url.openConnection();
             conn.setRequestMethod("GET");
 
-            // read the response
             InputStream in = new BufferedInputStream(conn.getInputStream());
 
             BufferedReader bR = new BufferedReader(  new InputStreamReader(in));
@@ -42,7 +45,6 @@ public class HttpHandler{
             }
             in.close();
             JSONObject jsonResult= new JSONObject(responseStrBuilder.toString());
-            Log.d("lol", "///////////////////////////////////////////////////////////////////"+jsonResult);
             JSONArray data = jsonResult.getJSONArray("results");
             if(data != null) {
                 String[] birthdays = new String[data.length()];

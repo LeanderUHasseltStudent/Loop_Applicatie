@@ -8,7 +8,7 @@ import java.util.Calendar;
 import java.util.Date;
 
 /**
- * Created by vanca on 4/18/2018.
+ * Created by Van Cappellen Leander
  */
 
 public class DataHandler {
@@ -68,7 +68,7 @@ public class DataHandler {
 
     public double getVelocity(){
         double velocity;
-        velocity = totalDistance/time;
+        velocity = (totalDistance*1000)/time;
         return velocity;
     }
 

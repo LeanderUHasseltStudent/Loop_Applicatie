@@ -6,11 +6,11 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.preference.PreferenceManager;
 import android.util.Log;
-import android.view.View;
-import android.widget.Button;
 import android.widget.TextView;
 
-import java.io.Serializable;
+/**
+ * Created by Van Cappellen Leander
+ */
 
 public class ChildActivity_LoopData extends AppCompatActivity {
     private TextView textViewName;

@@ -8,6 +8,10 @@ import android.os.Bundle;
 import android.support.v7.preference.PreferenceManager;
 import android.view.MenuItem;
 
+/**
+ * Created by Van Cappellen Leander
+ */
+
 public class SettingsActivity_LoopData extends AppCompatActivity {
 
     @Override
@@ -19,7 +23,6 @@ public class SettingsActivity_LoopData extends AppCompatActivity {
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         int id = item.getItemId();
-        // When the home button is pressed, take the user back to the VisualizerActivity
         if (id == android.R.id.home) {
             NavUtils.navigateUpFromSameTask(this);
         }

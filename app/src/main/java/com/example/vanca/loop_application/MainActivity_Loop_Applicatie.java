@@ -32,7 +32,10 @@ import java.text.DateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
-import java.util.concurrent.TimeUnit;
+
+/**
+ * Created by Van Cappellen Leander
+ */
 
 public class MainActivity_Loop_Applicatie extends AppCompatActivity implements MyRecyclerViewAdapter.ItemClickListener, SharedPreferences.OnSharedPreferenceChangeListener {
 
@@ -46,9 +49,6 @@ public class MainActivity_Loop_Applicatie extends AppCompatActivity implements M
     private Date date1;
     private Date date2;
     SharedPreferences sharedPreferences;
-
-    public MainActivity_Loop_Applicatie() {
-    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -85,13 +85,14 @@ public class MainActivity_Loop_Applicatie extends AppCompatActivity implements M
 
             @Override
             public void onSwiped(RecyclerView.ViewHolder viewHolder, int swipeDir) {
+                Log.d("Delete session", "Session is deleted");
                 long id = (long) viewHolder.itemView.getTag();
                 removeData(id);
                 adapter.swapCursor(getAllSesions());
             }
         }).attachToRecyclerView(recyclerView);
+        Log.d("Running", "onCreate: Application has succesfully finished onCreate");
     }
-
 
     private void setupSharedPreferences() {
         sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
@@ -115,6 +116,7 @@ public class MainActivity_Loop_Applicatie extends AppCompatActivity implements M
             case R.id.action_setting:
                 Intent intent = new Intent(this, SettingsActivity_LoopData.class);
                 startActivity(intent);
+                Log.d("Settings", "Settings activity is launched");
                 return true;
             default:
                 return super.onOptionsItemSelected(item);
@@ -141,6 +143,7 @@ public class MainActivity_Loop_Applicatie extends AppCompatActivity implements M
         cv.put(StorageContract.StorageEntry.COLUMN_MAXALTITUDE, maxAltitude);
         cv.put(StorageContract.StorageEntry.COLUMN_MINALTITUDE, minAltitude);
         cv.put(StorageContract.StorageEntry.COLUMN_VELOCITY, velocity);
+        Log.d("addData", "The data was added to the database ");
         return mDb.insert(StorageContract.StorageEntry.Data_Name, null, cv);
     }
 
@@ -168,6 +171,7 @@ public class MainActivity_Loop_Applicatie extends AppCompatActivity implements M
             intent.putExtra("Intent.EXTRA_TEXT5", maxAltitude);
             intent.putExtra("Intent.EXTRA_TEXT6", minAltitude);
             startActivity(intent);
+            Log.d("Session", "Detail activity is launched");
         }
     }
 
@@ -180,8 +184,6 @@ public class MainActivity_Loop_Applicatie extends AppCompatActivity implements M
     public class FetchAltitude extends AsyncTask<String, Void, ArrayList<Double>> {
         @Override
         protected ArrayList<Double> doInBackground(String... params) {
-
-            /* If there's no zip code, there's nothing to look up. */
             if (params.length == 0) {
                 return null;
             }
@@ -190,8 +192,10 @@ public class MainActivity_Loop_Applicatie extends AppCompatActivity implements M
             ArrayList<Double> test = lol.makeServiceCall(params[0]);
             return test;
         }
+
         @Override
         protected void onPostExecute(ArrayList<Double> respons) {
+            Log.d("Processing data", "Data is being processed");
             DataHandler dataHandler = new DataHandler(locations, respons, date2.getTime() - date1.getTime());
             dataHandler.checkAltitude();
 
@@ -211,6 +215,40 @@ public class MainActivity_Loop_Applicatie extends AppCompatActivity implements M
             btn_start.setEnabled(true);
             btn_stop.setEnabled(false);
         }
+    }
+
+    private void enable_buttons() {
+        Log.d("Permissions", "All permissions to run the application are granted");
+        btn_start.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Log.d("Start Location service", "onClick: location service is launched");
+                startSession();
+                Intent i =new Intent(getApplicationContext(),LocationService.class);
+                i.setAction(Constants.ACTION.STARTFOREGROUND_ACTION);
+                startService(i);
+            }
+        });
+
+        btn_stop.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Log.d("Stop Location service", "onClick: location service ended");
+                Intent i = new Intent(getApplicationContext(),LocationService.class);
+                stopService(i);
+                stopSession();
+            }
+        });
+
+    }
+
+    private void startSession(){
+        registerMyReceiver();
+        date1 = Calendar.getInstance().getTime();
+        btn_start.setEnabled(false);
+        btn_stop.setEnabled(true);
+        btn_start.setBackgroundColor(Color.GRAY);
+        btn_stop.setBackgroundColor(Color.RED);
     }
 
     public void stopSession(){
@@ -246,25 +284,17 @@ public class MainActivity_Loop_Applicatie extends AppCompatActivity implements M
         }
     }
 
-    class MyBroadCastReceiver extends BroadcastReceiver
-    {
-
+    class MyBroadCastReceiver extends BroadcastReceiver {
         @Override
         public void onReceive(Context context, Intent intent) {
             locations.add((Location) intent.getExtras().get("data"));
+            Log.d("Recieved data", "Current location added to the ArrayList : " + intent.getExtras().get("data"));
         }
-    }
-
-    @Override
-    protected void onDestroy() {
-        super.onDestroy();
     }
 
     private boolean runtime_permissions() {
         if(Build.VERSION.SDK_INT >= 23 && ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED){
-
             requestPermissions(new String[]{Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION},100);
-
             return true;
         }
         return false;
@@ -283,35 +313,9 @@ public class MainActivity_Loop_Applicatie extends AppCompatActivity implements M
         }
     }
 
-    private void startSession(){
-        registerMyReceiver();
-        date1 = Calendar.getInstance().getTime();
-        btn_start.setEnabled(false);
-        btn_stop.setEnabled(true);
-        btn_start.setBackgroundColor(Color.GRAY);
-        btn_stop.setBackgroundColor(Color.RED);
-    }
-
-    private void enable_buttons() {
-        btn_start.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                startSession();
-                Intent i =new Intent(getApplicationContext(),LocationService.class);
-                i.setAction(Constants.ACTION.STARTFOREGROUND_ACTION);
-                startService(i);
-            }
-        });
-
-        btn_stop.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Intent i = new Intent(getApplicationContext(),LocationService.class);
-                stopService(i);
-                stopSession();
-            }
-        });
-
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
     }
 
 }

@@ -19,6 +19,10 @@ import java.util.List;
 import static android.support.v4.content.ContextCompat.startActivity;
 import static java.lang.Double.parseDouble;
 
+/**
+ * Created by Van Cappellen Leander
+ */
+
 public class MyRecyclerViewAdapter extends RecyclerView.Adapter<MyRecyclerViewAdapter.GuestViewHolder> {
 
 
@@ -66,9 +70,7 @@ public class MyRecyclerViewAdapter extends RecyclerView.Adapter<MyRecyclerViewAd
         double d = Double.parseDouble(distance)/1000;
 
         DecimalFormat twoDForm = new DecimalFormat("#.#");
-        Double.valueOf(twoDForm.format(d));
-        String s = Double.toString(d);
-        holder.itemNumberTextView.setText(s + " km");
+        holder.itemNumberTextView.setText(twoDForm.format(d) + " km");
     }
 
 
@@ -114,7 +116,6 @@ public class MyRecyclerViewAdapter extends RecyclerView.Adapter<MyRecyclerViewAd
          * TextViews
          *
          * @param itemView The View that you inflated in
-         *                 {@link MyRecyclerViewAdapter#onCreateViewHolder(ViewGroup, int)}
          */
         public GuestViewHolder(View itemView) {
             super(itemView);
@@ -133,12 +134,10 @@ public class MyRecyclerViewAdapter extends RecyclerView.Adapter<MyRecyclerViewAd
 
     }
 
-    // allows clicks events to be caught
     void setClickListener(ItemClickListener itemClickListener) {
         this.mClickListener = itemClickListener;
     }
 
-    // parent activity will implement this method to respond to click events
     public interface ItemClickListener {
         void onItemClick(View view, int position);
     }
